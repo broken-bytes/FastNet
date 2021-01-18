@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <optional>
 #include "../network/Address.hxx"
 #include "../Globals.hxx"
@@ -43,5 +44,9 @@ namespace fastnet::types {
 		std::shared_ptr<internal::PacketBus> _sendBus;
 		uint8_t _sendRate;
 		std::thread _readThread;
+		std::map<std::string, internal::Channel> _channels;
+		std::vector<internal::Connection> _connections;
+
+		auto SetupChannels() -> void;
 	};
 }

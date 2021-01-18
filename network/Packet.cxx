@@ -20,8 +20,8 @@ namespace fastnet::internal {
 		return PacketType(ReadUIntShort());;
 	}
 
-	auto internal::Packet::Channel() -> internal::Channel {
-		return internal::Channel(ReadUIntShort());
+	auto internal::Packet::Channel() -> uint8_t {
+		return ReadUIntShort();
 	}
 
 	auto Packet::EndPoint() -> internal::EndPoint {
@@ -136,7 +136,7 @@ namespace fastnet::internal {
 		std::stringstream str;
 		const size_t size = static_cast<uint8_t>(PacketTypeSize::UIntShort);
 		str << std::setfill('0') << std::setw(size)
-			<< std::hex << std::to_string(static_cast<uint8_t>(channel));
+			<< std::hex << std::to_string(channel.Id);
 		_data.insert(size, str.str());
 	}
 
@@ -205,4 +205,6 @@ namespace fastnet::internal {
 		WriteFloat(data.Y);
 		WriteFloat(data.Z);
 	}
+
+	auto Packet::Deallocate() -> void {}
 }

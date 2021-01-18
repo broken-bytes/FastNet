@@ -31,11 +31,13 @@ int main() {
 	server->Start(25655);
 	client->Start();
 
+	
 	std::cout << "Is Server:" << fastnet::Interface::IsServer() << std::endl;
 	std::cout << "Is Client:" << fastnet::Interface::IsClient() << std::endl;
 
 	// TODO Implement multiple channels
 	
 	while(true) {
+		std::this_thread::sleep_for(1s);
 	}
 }

@@ -2,10 +2,22 @@
 
 #include "Peer.hxx"
 
+using namespace std::chrono;
+using namespace std::chrono_literals;
 
 namespace fastnet::types {
+	constexpr char ChannelReliableDefault[] = "ChannelReliableDefault";
+	constexpr char ChannelReliableSequencedDefault[] = "ChannelReliableSequencedDefault";
+	constexpr char ChannelReliableOrderedDefault[] = "ChannelReliableOrderedDefault";
+	constexpr char ChannelReliableFragmentedDefault[] = "ChannelReliableFragmentedDefault";
+	constexpr char ChannelUnreliableDefault[] = "ChannelUnreliableDefault";
+	constexpr char ChannelUnreliableSequencedDefault[] = "ChannelUnreliableSequencedDefault";
+	constexpr char ChannelUnreliableOrderedDefault[] = "ChannelUnreliableOrderedDefault";
+	constexpr char ChannelChat[] = "ChannelChat";
+	
 	constexpr uint16_t ConnectTimeoutMs = 5000;
 	auto Peer::Start(std::optional<uint16_t> port) -> void {
+		SetupChannels();
 		_sendBus = std::make_shared<internal::PacketBus>();
 		_receiveBus = std::make_shared<internal::PacketBus>();
 		SetSendRate();
@@ -57,25 +69,30 @@ namespace fastnet::types {
 
 	auto Peer::Connect(internal::EndPoint endpoint) -> void {
 		internal::Packet p{ internal::PacketType::ConnectRequest, std::move(endpoint) };
-		p.Channel(internal::Channel::Reliable);
+		p.Channel(_channels[ChannelReliableDefault]);
 		_sendBus->Write(p);
 	}
 
 	auto Peer::Read() -> void {
 		while(true) {
-			for(auto& packet: _receiveBus->Read()) {
-				packet.Open();
-				switch (packet.Type()) {
+			auto* packet = _receiveBus->Read();
+			while(packet != nullptr) {
+				packet->Open();
+				switch (packet->Type()) {
 				case internal::PacketType::ConnectRequest:
 					internal::Packet accept {
 						internal::PacketType::ConnectResponse,
-						packet.EndPoint()
+						packet->EndPoint()
 					};
-					accept.Channel(internal::Channel::Unreliable);
+					accept.Channel(_channels[ChannelReliableDefault]);
 					_sendBus->Write(accept);
 					break;
 				}
+				_receiveBus->Clear(packet);
+				packet = _receiveBus->Read();
 			}
+
+			std::this_thread::sleep_for(500us);
 		}
 	}
 
@@ -89,5 +106,14 @@ namespace fastnet::types {
 			packet.EndPoint(con.Endpoint);
 			_sendBus->Write(packet);
 		}
+	}
+
+	auto Peer::SetupChannels() -> void {
+		internal::Channel reliableDefault{ internal::ChannelType::Reliable, _channels.size() };
+		_channels.insert({ ChannelReliableDefault, reliableDefault});
+		internal::Channel unreliableDefault{
+			internal::ChannelType::Reliable, _channels.size()
+		};
+		_channels.insert({ ChannelUnreliableDefault, unreliableDefault });
 	}
 }

@@ -137,7 +137,7 @@ namespace fastnet::internal {
 		int64_t recSize = 0;
 		char recvbuf[READ_BUFFER_LEN];
 		char addr[46];
-		
+
 		while (_isActive) {
 			if (recSize = recvfrom(
 				_socket,
@@ -162,20 +162,24 @@ namespace fastnet::internal {
 			};
 			Packet p{ PacketType(std::stoi(parsed.substr(0, 4))), e };
 			_receiveBus->Write(p);
+			std::this_thread::sleep_for(500us);
 		}
 	}
 
 	auto Socket::SendLoop() -> void {
 		while (_isActive) {
-			for (auto& packet : _sendBus->Read()) {
-				if (packet.EndPoint().Address.Family != _family) {
+			auto* packet = _sendBus->Read();
+			while (packet != nullptr) {
+				if (packet->EndPoint().Address.Family != _family) {
 					continue;
 				}
 				Send(
-					packet.Raw().c_str(),
-					packet.Raw().length(),
-					packet.EndPoint()
+					packet->Raw().c_str(),
+					packet->Raw().length(),
+					packet->EndPoint()
 				);
+				_sendBus->Clear(packet);
+				packet = _sendBus->Read();
 			}
 			std::this_thread::sleep_for(milliseconds(_sendRate));
 		}

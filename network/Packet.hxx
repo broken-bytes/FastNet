@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-
+#include "Channel.hxx"
 #include "EndPoint.hxx"
 #include "../core/NetVar.hxx"
 
@@ -18,18 +18,10 @@ namespace fastnet::internal {
 	enum class PacketType: uint8_t {
 		ConnectRequest = 0x00,
 		ConnectResponse = 0x01,
-		PingRequest = 0x02,
-		PingResponse = 0x03,
-		MessageAck = 0x04
-	};
-
-	enum class Channel: uint8_t {
-		Unreliable = 0x00,
-		UnreliableSequenced = 0x01,
-		UnreliableOrdered = 0x02,
-		Reliable = 0x03,
-		ReliableSequenced = 0x04,
-		ReliableOrdered = 0x05,
+		ConnectHandshake = 0x02,
+		PingRequest = 0x04,
+		PingResponse = 0x05,
+		MessageAck = 0x06
 	};
 
 	class Packet {
@@ -38,7 +30,7 @@ namespace fastnet::internal {
 		explicit Packet(PacketType type, EndPoint endpoint);
 		auto Raw()->std::string;
 		auto Type()->PacketType;
-		auto Channel()->Channel;
+		auto Channel()->uint8_t;
 		auto EndPoint()->EndPoint;
 		auto Open() -> void;
 		auto Close() -> void;
@@ -67,6 +59,7 @@ namespace fastnet::internal {
 		auto WriteString(std::string data)->void;
 		auto WriteVector2(Vector2 data)->void;
 		auto WriteVector3(Vector3 data)->void;
+		auto Deallocate() -> void;
 	private:
 		std::string _data = "";
 		uint16_t _position = 0;

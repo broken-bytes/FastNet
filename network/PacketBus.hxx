@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <vector>
 #include <mutex>
 
@@ -8,15 +9,11 @@
 namespace fastnet::internal {
 		class PacketBus {
 		public:
-			auto Write(Packet packet) -> void {
-				std::scoped_lock guard{ _mutex };
-				_bus.emplace_back(packet);
-			}
-
-			auto Read()->std::vector<Packet> {
-				std::scoped_lock guard{ _mutex };
-				return _bus;
-			}
+			PacketBus();
+			auto Write(Packet packet) -> void;
+			auto Read()->Packet*;
+			auto Clear(Packet* target) -> void;
+			
 		private:
 			std::vector<Packet> _bus;
 			std::mutex _mutex;

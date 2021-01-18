@@ -31,6 +31,7 @@ set(internal
 network/Address.hxx
 network/EndPoint.hxx
 network/Socket.hxx
+network/Channel.hxx
 network/Packet.hxx
 network/Packet.cxx
 network/PacketBus.hxx
