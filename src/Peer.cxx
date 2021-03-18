@@ -2,6 +2,8 @@
 
 #include "Peer.hxx"
 
+#include "Exceptions.hxx"
+
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
@@ -16,8 +18,15 @@ namespace fastnet::types {
 	constexpr char ChannelChat[] = "ChannelChat";
 	
 	constexpr uint16_t ConnectTimeoutMs = 5000;
+	
+	auto Peer::Setup(PeerConfig config) -> void {
+		_config = config;
+	}
+
 	auto Peer::Start(std::optional<uint16_t> port) -> void {
-		SetupChannels();
+		if(_config.Channels.empty()) {
+			throw exceptions::InvalidPeerConfigException();
+		}
 		_sendBus = std::make_shared<internal::PacketBus>();
 		_receiveBus = std::make_shared<internal::PacketBus>();
 		SetSendRate();
@@ -67,9 +76,26 @@ namespace fastnet::types {
 		}
 	}
 
-	auto Peer::Connect(internal::EndPoint endpoint) -> void {
-		internal::Packet p{ internal::PacketType::ConnectRequest, std::move(endpoint) };
-		p.Channel(_channels[ChannelReliableDefault]);
+	auto Peer::Connect(std::string address, uint16_t port) -> void {
+		auto e = internal::EndPoint{ {address}, port };
+		auto endpoint = std::make_shared<internal::EndPoint>(e);
+		internal::Packet p{
+			internal::PacketType::ConnectRequest,
+			endpoint
+	};
+
+		Channel* unreliable = nullptr;
+
+		for(auto& item: _config.Channels) {
+			if(item.Type == ChannelType::Unreliable) {
+				unreliable = &item;
+			}
+		}
+		if(!unreliable) {
+			throw exceptions::InvalidPeerConfigException();
+		}
+		
+		p.Channel(*unreliable);
 		_sendBus->Write(p);
 	}
 
@@ -84,7 +110,17 @@ namespace fastnet::types {
 						internal::PacketType::ConnectResponse,
 						packet->EndPoint()
 					};
-					accept.Channel(_channels[ChannelReliableDefault]);
+					Channel* unreliable = nullptr;
+
+					for (auto& item : _config.Channels) {
+						if (item.Type == ChannelType::Unreliable) {
+							unreliable = &item;
+						}
+					}
+					if (!unreliable) {
+						throw exceptions::InvalidPeerConfigException();
+					}
+					accept.Channel(*unreliable);
 					_sendBus->Write(accept);
 					break;
 				}
@@ -99,7 +135,7 @@ namespace fastnet::types {
 	auto Peer::Send(
 		std::vector<internal::Connection> connections,
 		internal::Packet packet,
-		internal::Channel channel
+		Channel channel
 	) -> void {
 		for (auto& con : connections) {
 			packet.Channel(channel);
@@ -108,12 +144,20 @@ namespace fastnet::types {
 		}
 	}
 
-	auto Peer::SetupChannels() -> void {
-		internal::Channel reliableDefault{ internal::ChannelType::Reliable, _channels.size() };
-		_channels.insert({ ChannelReliableDefault, reliableDefault});
-		internal::Channel unreliableDefault{
-			internal::ChannelType::Reliable, _channels.size()
-		};
-		_channels.insert({ ChannelUnreliableDefault, unreliableDefault });
+	auto Peer::ChannelByName(std::string name) const -> Channel {
+		for(const auto& item: _config.Channels) {
+			if(item.Name == name) {
+				return item;
+			}
+		}
+		throw exceptions::InvalidChannelException();
+	}
+	auto Peer::ChannelById(uint8_t id) const -> Channel {
+		for (const auto& item : _config.Channels) {
+			if (item.Id == id) {
+				return item;
+			}
+		}
+		throw exceptions::InvalidChannelException();
 	}
 }

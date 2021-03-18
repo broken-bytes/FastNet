@@ -13,6 +13,13 @@ namespace fastnet {
 		float Z;
 	};
 
+	struct Vector4 {
+		float X;
+		float Y;
+		float Z;
+		float W;
+	};
+
 	class INetVar {
 	public:
 		virtual ~INetVar() = 0;

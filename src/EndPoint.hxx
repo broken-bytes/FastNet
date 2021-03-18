@@ -2,7 +2,7 @@
 #include <string>
 #include <type_traits>
 
-#include "../network/Address.hxx"
+#include "../src/Address.hxx"
 
 namespace fastnet::internal {
 	struct EndPoint {

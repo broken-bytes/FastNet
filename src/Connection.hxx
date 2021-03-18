@@ -15,7 +15,7 @@ namespace fastnet::internal {
 		/// <summary>
 		/// The endpoint this connection is bound to
 		/// </summary>
-		EndPoint Endpoint;
+		std::shared_ptr<EndPoint> Endpoint;
 		/// <summary>
 		/// The socket number associated with this connection
 		/// </summary>

@@ -12,7 +12,7 @@
 #include "Address.hxx"
 #include "Packet.hxx"
 #include "PacketBus.hxx"
-#include "../Globals.hxx"
+#include "../src/Globals.hxx"
 
 namespace fastnet::internal {
 	struct EndPoint;
@@ -34,7 +34,7 @@ namespace fastnet::internal {
 		auto Send(
 			const char* data,
 			size_t len,
-			EndPoint endpoint
+			EndPoint* endpoint
 		) -> void;
 
 	private:

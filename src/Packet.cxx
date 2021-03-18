@@ -4,12 +4,16 @@
 #include <sstream>
 
 namespace fastnet::internal {
-	Packet::Packet(PacketType type) : Packet(type, {}) {
+	Packet::Packet(PacketType type) : Packet(type, nullptr) {
 	}
 
-	Packet::Packet(PacketType type, internal::EndPoint endpoint) {
+	Packet::Packet(PacketType type, std::shared_ptr<internal::EndPoint> endpoint) {
 		Type(type);
 		_endpoint = endpoint;
+	}
+
+	Packet::~Packet() {
+		_endpoint = nullptr;
 	}
 
 	auto Packet::Raw() -> std::string {
@@ -24,7 +28,7 @@ namespace fastnet::internal {
 		return ReadUIntShort();
 	}
 
-	auto Packet::EndPoint() -> internal::EndPoint {
+	auto Packet::EndPoint() const -> std::shared_ptr<internal::EndPoint> {
 		return _endpoint;
 	}
 
@@ -132,7 +136,7 @@ namespace fastnet::internal {
 		WriteUIntShort(static_cast<uint8_t>(type));
 	}
 
-	auto Packet::Channel(internal::Channel channel) -> void {
+	auto Packet::Channel(fastnet::Channel channel) -> void {
 		std::stringstream str;
 		const size_t size = static_cast<uint8_t>(PacketTypeSize::UIntShort);
 		str << std::setfill('0') << std::setw(size)
@@ -140,7 +144,7 @@ namespace fastnet::internal {
 		_data.insert(size, str.str());
 	}
 
-	auto Packet::EndPoint(internal::EndPoint e) -> void {
+	auto Packet::EndPoint(std::shared_ptr<internal::EndPoint> e) -> void {
 		_endpoint = e;
 	}
 

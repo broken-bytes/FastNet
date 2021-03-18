@@ -14,7 +14,7 @@ namespace fastnet {
 		auto static IsClient() -> bool;
 		auto static ClientId()->uint64_t;
 	private:
-		static inline std::vector<types::Peer*> _peers;
+		static inline std::vector<std::shared_ptr<types::Peer>> _peers;
 		static inline bool _isServer;
 		static inline bool _isClient;
 		static inline uint64_t _clientId;

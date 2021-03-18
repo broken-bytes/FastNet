@@ -1,6 +1,6 @@
 #pragma once
 
-namespace fastnet::internal {
+namespace fastnet {
 	enum class ChannelType : uint8_t {
 		Unreliable = 0x00,
 		UnreliableSequenced = 0x01,
@@ -13,5 +13,6 @@ namespace fastnet::internal {
 	struct Channel {
 		ChannelType Type;
 		uint8_t Id;
+		std::string Name;
 	};
 }

@@ -46,14 +46,14 @@ namespace fastnet::internal {
 	auto Socket::Send(
 		const char* data,
 		size_t len,
-		EndPoint endpoint
+		EndPoint* endpoint
 	) -> void {
 		sockaddr_in in{};
-		in.sin_family = (endpoint.Address.Family == AddressFamily::IPv4) ? AF_INET : AF_INET6;
-		in.sin_port = htons(endpoint.Port);
+		in.sin_family = (endpoint->Address.Family == AddressFamily::IPv4) ? AF_INET : AF_INET6;
+		in.sin_port = htons(endpoint->Port);
 		inet_pton(
 			in.sin_family,
-			endpoint.Address.Value.c_str(),
+			endpoint->Address.Value.c_str(),
 			&in.sin_addr
 		);
 		sendto(
@@ -157,10 +157,12 @@ namespace fastnet::internal {
 				46
 			);
 			EndPoint e{
-				_family, addr,
+				{addr, _family },
 				htons(sender.sin_port)
 			};
-			Packet p{ PacketType(std::stoi(parsed.substr(0, 4))), e };
+			Packet p{ PacketType(
+				std::stoi(parsed.substr(0, 4))),
+				std::make_shared<EndPoint>(e) };
 			_receiveBus->Write(p);
 			std::this_thread::sleep_for(500us);
 		}
@@ -170,13 +172,16 @@ namespace fastnet::internal {
 		while (_isActive) {
 			auto* packet = _sendBus->Read();
 			while (packet != nullptr) {
-				if (packet->EndPoint().Address.Family != _family) {
+				if(!packet->EndPoint()) {
+					continue;
+				}
+				if (packet->EndPoint()->Address.Family != _family) {
 					continue;
 				}
 				Send(
 					packet->Raw().c_str(),
 					packet->Raw().length(),
-					packet->EndPoint()
+					packet->EndPoint().get()
 				);
 				_sendBus->Clear(packet);
 				packet = _sendBus->Read();

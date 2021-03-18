@@ -11,45 +11,46 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(FastNet)
 
 set(protocol
-protocol/Packet.hxx
+src/Packet.hxx
 )
 
 set(core
-core/FastNet.hxx
-core/FastNet.cxx
-core/PeerConfig.hxx
-core/Peer.hxx
-core/Peer.cxx
-core/NetVar.hxx
-core/NetObject.hxx
-core/NetObject.cxx
-Globals.hxx
+src/FastNet.hxx
+src/FastNet.cxx
+src/PeerConfig.hxx
+src/Peer.hxx
+src/Peer.cxx
+src/NetVar.hxx
+src/NetObject.hxx
+src/NetObject.cxx
+src/Globals.hxx
+
+src/Channel.hxx
 )
 
 
 set(internal
-network/Address.hxx
-network/EndPoint.hxx
-network/Socket.hxx
-network/Channel.hxx
-network/Packet.hxx
-network/Packet.cxx
-network/PacketBus.hxx
-network/PacketBus.cxx
-network/Connection.hxx
+src/Address.hxx
+src/EndPoint.hxx
+src/Socket.hxx
+src/Packet.hxx
+src/Packet.cxx
+src/PacketBus.hxx
+src/PacketBus.cxx
+src/Connection.hxx
 )
 
 if(MSVC)
 set(internal_platform
-network/windows/Socket.cxx
+src/windows/Socket.cxx
 )
 elseif(UNIX)
 set(internal_platform
-network/linux/Socket.cxx
+src/linux/Socket.cxx
 )
 else()
 set(internal_platform
-network/darwin/Socket.cxx
+src/darwin/Socket.cxx
 )
 endif()
 
@@ -57,8 +58,8 @@ source_group(protocol FILES ${protocol})
 source_group(core FILES ${core})
 source_group(internal FILES ${internal} ${internal_platform})
 
-add_library (FastNetStatic STATIC ${core} ${internal} ${internal_platform})
-add_library (FastNetDynamic SHARED ${core} ${internal} ${internal_platform})
+add_library (FastNetStatic STATIC ${core} ${internal} ${internal_platform} "src/Exceptions.hxx")
+add_library (FastNetDynamic SHARED ${core} ${internal} ${internal_platform} "src/Exceptions.hxx")
 
-add_executable(FastNetTest core/FastNet.hxx core/FastNet.cxx test/main.cxx)
+add_executable(FastNetTest src/FastNet.hxx src/FastNet.cxx test/main.cxx "src/Exceptions.hxx")
 target_link_libraries(FastNetTest PUBLIC FastNetStatic)

@@ -1,9 +1,10 @@
 #pragma once
+#include <memory>
 #include <string>
 
 #include "Channel.hxx"
 #include "EndPoint.hxx"
-#include "../core/NetVar.hxx"
+#include "../src/NetVar.hxx"
 
 namespace fastnet::internal {
 	enum class PacketTypeSize : uint8_t {
@@ -27,11 +28,12 @@ namespace fastnet::internal {
 	class Packet {
 	public:
 		explicit Packet(PacketType type);
-		explicit Packet(PacketType type, EndPoint endpoint);
+		explicit Packet(PacketType type, std::shared_ptr<internal::EndPoint> endpoint);
+		~Packet();
 		auto Raw()->std::string;
 		auto Type()->PacketType;
 		auto Channel()->uint8_t;
-		auto EndPoint()->EndPoint;
+		auto EndPoint()const->std::shared_ptr<internal::EndPoint>;
 		auto Open() -> void;
 		auto Close() -> void;
 		auto ReadIntShort()->int16_t;
@@ -46,8 +48,8 @@ namespace fastnet::internal {
 		auto ReadVector2()->fastnet::Vector2;
 		auto ReadVector3()->fastnet::Vector3;
 		auto Type(PacketType type) -> void;
-		auto Channel(internal::Channel channel) -> void;
-		auto EndPoint(internal::EndPoint e)->void;
+		auto Channel(fastnet::Channel channel) -> void;
+		auto EndPoint(std::shared_ptr<internal::EndPoint> e)->void;
 		auto WriteIntShort(int16_t data)->void;
 		auto WriteUIntShort(uint16_t data)->void;
 		auto WriteInt(int32_t data)->void;
@@ -63,6 +65,6 @@ namespace fastnet::internal {
 	private:
 		std::string _data = "";
 		uint16_t _position = 0;
-		internal::EndPoint _endpoint;
+		std::shared_ptr<internal::EndPoint> _endpoint;
 	};
 }

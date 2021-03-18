@@ -20,7 +20,7 @@ namespace fastnet::internal {
 	}
 
 	auto PacketBus::Clear(Packet* target) -> void {
-		for(int x = 0; x < _bus.size(); x++) {
+		for(size_t x = 0; x < _bus.size(); x++) {
 			if(target == &_bus[x]) {
 				_bus.erase(_bus.begin() + x);
 				return;

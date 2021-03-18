@@ -7,7 +7,7 @@
 namespace fastnet {
 	auto Interface::CreatePeer() -> std::shared_ptr<types::Peer> {
 		auto ptr = std::make_shared<types::Peer>();
-		_peers.emplace_back(ptr.get()); 
+		_peers.emplace_back(ptr); 
 		return ptr;
 	}
 

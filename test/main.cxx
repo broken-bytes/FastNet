@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "../core/FastNet.hxx"
-#include "../core/NetObject.hxx"
-#include "../core/Peer.hxx"
+#include "../src/FastNet.hxx"
+#include "../src/NetObject.hxx"
+#include "../src/Peer.hxx"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -28,8 +28,9 @@ private:
 int main() {
 	auto server = fastnet::Interface::CreatePeer();
 	auto client = fastnet::Interface::CreatePeer();
-	server->Start(25655);
+	//server->Start(25655);
 	client->Start();
+	client->Connect("127.0.0.1", 40042);
 
 	
 	std::cout << "Is Server:" << fastnet::Interface::IsServer() << std::endl;
