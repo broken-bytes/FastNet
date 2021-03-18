@@ -11,9 +11,8 @@
 #include "../src/PacketBus.hxx"
 #include "../src/Socket.hxx"
 
-namespace fastnet::types {
-	constexpr uint8_t SendRateDefault = 24;
-	DLL_EXPORT class Peer {
+namespace fastnet {
+	class DLL_EXPORT Peer {
 	public:
 		Peer() = default;
 		/// <summary>
@@ -29,11 +28,11 @@ namespace fastnet::types {
 		/// <returns></returns>
 		auto ClientId()->uint64_t;
 		/// <summary>
-		/// Sets the number of sends per second
+		/// Connects to a remote endpoint
 		/// </summary>
-		/// <param name="rate"></param>
+		/// <param name="address"></param>
+		/// <param name="port"></param>
 		/// <returns></returns>
-		auto SetSendRate(uint8_t rate = SendRateDefault) -> void;
 		auto Connect(std::string address, uint16_t port) -> void;
 		auto Read() -> void;
 		auto Send(
@@ -42,9 +41,8 @@ namespace fastnet::types {
 			Channel channel
 		) -> void;
 	private:
-		friend class ::fastnet::Interface;
 		std::vector<std::unique_ptr<internal::Socket>> _sockets;
-		PeerConfig _config;
+		std::unique_ptr<PeerConfig> _config;
 		// The id of this peer as a client connected to a server
 		uint64_t _clientId;
 		std::shared_ptr<internal::PacketBus> _receiveBus;
@@ -55,5 +53,6 @@ namespace fastnet::types {
 
 		auto ChannelByName(std::string name) const -> Channel;
 		auto ChannelById(uint8_t id) const -> Channel;
+		auto SetSendRate(uint8_t rate = 0) -> void;
 	};
 }

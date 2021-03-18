@@ -26,15 +26,22 @@ private:
 };
 
 int main() {
-	auto server = fastnet::Interface::CreatePeer();
-	auto client = fastnet::Interface::CreatePeer();
-	//server->Start(25655);
+	auto config = fastnet::PeerConfig {
+		10,
+		{{fastnet::ChannelType::Unreliable, 0, "Default"}},
+		25
+	};
+	auto server = fastnet::FastNet::CreatePeer();
+	auto client = fastnet::FastNet::CreatePeer();
+	server->Setup(config);
+	client->Setup(config);
+	server->Start(25655);
 	client->Start();
 	client->Connect("127.0.0.1", 40042);
 
 	
-	std::cout << "Is Server:" << fastnet::Interface::IsServer() << std::endl;
-	std::cout << "Is Client:" << fastnet::Interface::IsClient() << std::endl;
+	std::cout << "Is Server:" << fastnet::FastNet::IsServer() << std::endl;
+	std::cout << "Is Client:" << fastnet::FastNet::IsClient() << std::endl;
 
 	// TODO Implement multiple channels
 	

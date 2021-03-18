@@ -24,7 +24,7 @@ namespace fastnet::internal {
 	class Socket {
 	public:
 		Socket(AddressFamily family = AddressFamily::IPv6, uint16_t port = 0);
-		~Socket();
+		~Socket() = default;
 
 		auto SetSendRate(uint8_t rate) -> void;
 		auto SetSendBus(PacketBus* bus) -> void;

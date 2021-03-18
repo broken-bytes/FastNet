@@ -4,9 +4,9 @@
 #include "Channel.hxx"
 
 namespace fastnet {
-	struct PeerConfig {
+	struct DLL_EXPORT PeerConfig {		
 		uint16_t MaxConnections;
 		std::vector<Channel> Channels;
-		uint8_t SendRate;
+		uint8_t SendRate = 24;
 	};
 }

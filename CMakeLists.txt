@@ -24,7 +24,7 @@ src/NetVar.hxx
 src/NetObject.hxx
 src/NetObject.cxx
 src/Globals.hxx
-
+src/Exceptions.hxx
 src/Channel.hxx
 )
 
@@ -58,8 +58,9 @@ source_group(protocol FILES ${protocol})
 source_group(core FILES ${core})
 source_group(internal FILES ${internal} ${internal_platform})
 
-add_library (FastNetStatic STATIC ${core} ${internal} ${internal_platform} "src/Exceptions.hxx")
-add_library (FastNetDynamic SHARED ${core} ${internal} ${internal_platform} "src/Exceptions.hxx")
+add_library (FastNetStatic STATIC ${core} ${internal} ${internal_platform} )
+add_library (FastNetDynamic SHARED ${core} ${internal} ${internal_platform} )
+target_compile_definitions(FastNetDynamic PUBLIC _DYNAMIC)
 
-add_executable(FastNetTest src/FastNet.hxx src/FastNet.cxx test/main.cxx "src/Exceptions.hxx")
-target_link_libraries(FastNetTest PUBLIC FastNetStatic)
+add_executable(FastNetTest src/FastNet.hxx test/main.cxx)
+target_link_libraries(FastNetTest PUBLIC FastNetDynamic)

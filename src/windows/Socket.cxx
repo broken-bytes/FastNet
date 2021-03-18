@@ -31,7 +31,6 @@ namespace fastnet::internal {
 
 		Start();
 	}
-	Socket::~Socket() {}
 	auto Socket::SetSendRate(uint8_t rate) -> void {
 		_sendRate = rate;
 	}
@@ -172,7 +171,7 @@ namespace fastnet::internal {
 		while (_isActive) {
 			auto* packet = _sendBus->Read();
 			while (packet != nullptr) {
-				if(!packet->EndPoint()) {
+				if(packet->EndPoint() != nullptr) {
 					continue;
 				}
 				if (packet->EndPoint()->Address.Family != _family) {

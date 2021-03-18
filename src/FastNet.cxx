@@ -3,24 +3,33 @@
 
 #include "FastNet.hxx"
 #include "Peer.hxx"
+#include "Socket.hxx"
 
 namespace fastnet {
-	auto Interface::CreatePeer() -> std::shared_ptr<types::Peer> {
-		auto ptr = std::make_shared<types::Peer>();
+	auto FastNet::CreatePeer() -> std::shared_ptr<Peer> {
+		auto ptr = std::make_shared<Peer>();
 		_peers.emplace_back(ptr); 
 		return ptr;
 	}
 
-	auto Interface::IsServer() -> bool {
+	auto FastNet::IsServer() -> bool {
 		return _isServer;
 	}
 
-	auto Interface::IsClient() -> bool {
+	auto FastNet::IsClient() -> bool {
 		return _isClient;
 	}
 
-	auto Interface::ClientId() -> uint64_t {
+	auto FastNet::ClientId() -> uint64_t {
 		return _clientId;
+	}
+
+	auto FastNet::SetServer(bool value) -> void {
+		_isServer = value;
+	}
+
+	auto FastNet::SetClient(bool value) -> void {
+		_isClient = value;
 	}
 
 }
